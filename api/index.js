@@ -1,7 +1,12 @@
-import express from "express"
+import express from 'express';
+import dotenv from 'dotenv';
+import connectMongoDB from '../db/db.js';
 
-const app = express()
+dotenv.config();
 
-app.listen(3000, ()=>{
-    console.log('Server is running on the PORT 3000!!! ');  
-})
+const app = express();
+connectMongoDB();
+
+app.listen(process.env.PORT, () => {
+  console.log(`🚀 Server running on PORT ${process.env.PORT}`);
+});
