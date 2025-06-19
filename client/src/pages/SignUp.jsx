@@ -1,28 +1,42 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import axios from "axios"
-import OAuth from '../components/OAuth'
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from "axios";
+import OAuth from '../components/OAuth';
+import { useDispatch } from 'react-redux';
+import { signOut } from '../redux/user/userSlice';
+
 const SignUp = () => {
-  const [formData, setFormData] = useState({})
-  const navigate = useNavigate()
+  const [formData, setFormData] = useState({});
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const handleChange = (e) => {
-      setFormData({
-        ...formData,
-        [e.target.id]: e.target.value
-      })
-    }
-    console.log(formData);
-    
+    setFormData({
+      ...formData,
+      [e.target.id]: e.target.value
+    });
+  };
+
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const res = await axios.post("http://localhost:3000/api/auth/signup", formData);
-    console.log("✅ Signup success:", res.data);
-    navigate("/sign-in")
-  } catch (error) {
-    console.error("❌ Signup error:", error.response?.data || error.message);
-  }
-};
+    e.preventDefault();
+    try {
+      const res = await axios.post("http://localhost:3000/api/auth/signup", formData);
+      console.log("✅ Signup success:", res.data);
+      navigate("/sign-in");
+    } catch (error) {
+      console.error("❌ Signup error:", error.response?.data || error.message);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await axios.post("http://localhost:3000/api/auth/logout", {}, { withCredentials: true });
+      dispatch(signOut());
+      console.log("✅ Logged out");
+    } catch (err) {
+      console.error("❌ Logout failed:", err);
+    }
+  };
 
   return (
     <div className='p-3 max-w-lg mx-auto'>
@@ -32,16 +46,26 @@ const SignUp = () => {
         <input type="email" placeholder="Email" className='border border-gray-500 p-3 bg-white rounded-lg' id='email' onChange={handleChange}/>
         <input type="password" placeholder="Password" className='border border-gray-500 p-3 bg-white rounded-lg' id='password' onChange={handleChange}/>
         <button className='bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80'>Sign Up</button>
-        <OAuth/>
+        <OAuth />
       </form>
+
       <div className='flex gap-2 mt-5'>
         <p>Have an account?</p>
         <Link to={"/sign-in"}>
-        <span className='text-blue-700'>Sign In</span>
-          </Link>
+          <span className='text-blue-700'>Sign In</span>
+        </Link>
+      </div>
+
+      {/* &^*&$%*&%(*^ Logout Button added below SignUp */}
+      <div className='mt-6 text-center'>
+        <button
+          onClick={handleLogout}
+          className='text-red-600 underline hover:text-red-800'>
+          Logout
+        </button>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SignUp
+export default SignUp;
