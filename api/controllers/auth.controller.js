@@ -85,3 +85,21 @@ export const logout = (req, res) => {
     res.status(500).json("Something went wrong during logout");
   }
 };
+
+
+export const updateUser = async (req, res, next) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: req.body, // update avatar or other fields
+      },
+      { new: true } // return updated document
+    );
+
+    const { password, ...rest } = updatedUser._doc;
+    res.status(200).json(rest);
+  } catch (error) {
+    next(error);
+  }
+};
