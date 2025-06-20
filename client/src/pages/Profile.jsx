@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import axios from 'axios';
 import { signOut, updateProfile } from '../redux/user/userSlice';
 
-axios.defaults.withCredentials = true; // ✅ Send cookies with request
+axios.defaults.withCredentials = true; // ✅ Include cookies
 
 const Profile = () => {
   const fileRef = useRef(null);
@@ -11,6 +11,7 @@ const Profile = () => {
   const { currentUser } = useSelector((state) => state.user);
 
   const [file, setFile] = useState(null);
+  const [successMsg, setSuccessMsg] = useState('');
   const [formData, setFormData] = useState({
     username: currentUser.username,
     email: currentUser.email,
@@ -38,9 +39,9 @@ const Profile = () => {
     if (file) {
       const data = new FormData();
       data.append('file', file);
-      data.append('upload_preset', 'your_upload_preset'); // ✅ Replace with actual preset
+      data.append('upload_preset', 'mern_upload');
 
-      const cloudRes = await fetch("https://api.cloudinary.com/v1_1/your_cloud_name/image/upload", {
+      const cloudRes = await fetch("https://api.cloudinary.com/v1_1/dsjztvv1o/image/upload", {
         method: "POST",
         body: data,
       });
@@ -50,7 +51,6 @@ const Profile = () => {
     }
 
     try {
-      // Prepare clean payload
       const payload = {
         username: formData.username,
         email: formData.email,
@@ -65,14 +65,33 @@ const Profile = () => {
 
       dispatch(updateProfile(res.data));
       localStorage.setItem("user", JSON.stringify(res.data));
+      setSuccessMsg("✅ User updated successfully!");
+      setTimeout(() => setSuccessMsg(''), 3000); // Hide after 3s
+
     } catch (err) {
       console.error("Update failed:", err);
     }
   };
 
+  const handleDelete = async () => {
+  if (!window.confirm("Are you sure you want to delete your account?")) return;
+
+  try {
+    await axios.delete(`http://localhost:3000/api/auth/delete/${currentUser._id}`);
+    dispatch(signOut());
+    localStorage.removeItem("user");
+  } catch (error) {
+    console.error("Delete failed:", error);
+  }
+};
+
+
   return (
     <div className='p-3 max-w-lg mx-auto'>
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
+      {successMsg && (
+        <p className="text-green-600 text-center font-medium">{successMsg}</p>
+      )}
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <input type="file" ref={fileRef} hidden accept='image/*' onChange={(e) => setFile(e.target.files[0])} />
         <img
@@ -89,7 +108,7 @@ const Profile = () => {
         </button>
       </form>
       <div className='flex justify-between mt-5'>
-        <span className='text-red-700 cursor-pointer'>Delete Account</span>
+        <span className='text-red-700 cursor-pointer' onClick={handleDelete}>Delete Account</span>
         <span className='text-red-700 cursor-pointer' onClick={handleLogout}>Sign Out</span>
       </div>
     </div>
