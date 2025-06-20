@@ -3,6 +3,8 @@ import { useRef, useState } from 'react';
 import axios from 'axios';
 import { signOut, updateProfile } from '../redux/user/userSlice';
 
+axios.defaults.withCredentials = true; // ✅ Send cookies with request
+
 const Profile = () => {
   const fileRef = useRef(null);
   const dispatch = useDispatch();
@@ -32,11 +34,11 @@ const Profile = () => {
     e.preventDefault();
     let imageUrl = currentUser.avatar;
 
-    // Upload image to Cloudinary if new file is selected
+    // Upload image to Cloudinary if file selected
     if (file) {
       const data = new FormData();
       data.append('file', file);
-      data.append('upload_preset', 'your_upload_preset');
+      data.append('upload_preset', 'your_upload_preset'); // ✅ Replace with actual preset
 
       const cloudRes = await fetch("https://api.cloudinary.com/v1_1/your_cloud_name/image/upload", {
         method: "POST",
@@ -48,12 +50,19 @@ const Profile = () => {
     }
 
     try {
-      const res = await axios.put(`/api/auth/update/${currentUser._id}`, {
-        ...formData,
+      // Prepare clean payload
+      const payload = {
+        username: formData.username,
+        email: formData.email,
         avatar: imageUrl,
-      });
+      };
 
-      // Update Redux & localStorage
+      if (formData.password.trim() !== '') {
+        payload.password = formData.password;
+      }
+
+      const res = await axios.put(`http://localhost:3000/api/auth/update/${currentUser._id}`, payload);
+
       dispatch(updateProfile(res.data));
       localStorage.setItem("user", JSON.stringify(res.data));
     } catch (err) {
@@ -74,8 +83,8 @@ const Profile = () => {
         />
         <input type="text" id='username' placeholder='Username' value={formData.username} onChange={handleChange} className='border p-3 rounded-lg' />
         <input type="email" id='email' placeholder='Email' value={formData.email} onChange={handleChange} className='border p-3 rounded-lg' />
-        <input type="text" id='password' placeholder='Password' value={formData.password} onChange={handleChange} className='border p-3 rounded-lg' />
-        <button type='submit' className='bg-slate-700 text-white rounded-lg p-3 uppercase hover:opacity-95 disabled:opacity-80'>
+        <input type="text" id='password' placeholder='Password (leave blank to keep unchanged)' value={formData.password} onChange={handleChange} className='border p-3 rounded-lg' />
+        <button type='submit' className='bg-slate-700 text-white rounded-lg p-3 uppercase hover:opacity-95'>
           Update
         </button>
       </form>

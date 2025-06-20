@@ -86,15 +86,21 @@ export const logout = (req, res) => {
   }
 };
 
-
 export const updateUser = async (req, res, next) => {
+  if (req.user.id !== req.params.id)
+    return next(errorHandler(401, "You can only update your own account!"));
+
   try {
+    if (req.body.password === "") {
+      delete req.body.password;
+    } else if (req.body.password) {
+      req.body.password = bcryptjs.hashSync(req.body.password, 10);
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
-      {
-        $set: req.body, // update avatar or other fields
-      },
-      { new: true } // return updated document
+      { $set: req.body },
+      { new: true }
     );
 
     const { password, ...rest } = updatedUser._doc;

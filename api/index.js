@@ -4,6 +4,7 @@ import cors from 'cors';
 import userRouter from './routes/user.routes.js';
 import authRouter from './routes/auth.routes.js';
 import connectMongoDB from './db/db.js';
+import cookieParser from 'cookie-parser'
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use(cookieParser())
 connectMongoDB();
 
 app.listen(process.env.PORT, () => {
@@ -34,3 +36,8 @@ app.use((err, req, res, next) => {
     message,
   });
 });
+
+
+/** 
+ * ! 4:11:33
+ * **/
