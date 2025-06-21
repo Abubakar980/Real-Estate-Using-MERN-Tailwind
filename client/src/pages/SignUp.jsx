@@ -2,13 +2,10 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from "axios";
 import OAuth from '../components/OAuth';
-import { useDispatch } from 'react-redux';
-import { signOut } from '../redux/user/userSlice';
 
 const SignUp = () => {
   const [formData, setFormData] = useState({});
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({
@@ -28,15 +25,7 @@ const SignUp = () => {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await axios.post("http://localhost:3000/api/auth/logout", {}, { withCredentials: true });
-      dispatch(signOut());
-      console.log("✅ Logged out");
-    } catch (err) {
-      console.error("❌ Logout failed:", err);
-    }
-  };
+  
 
   return (
     <div className='p-3 max-w-lg mx-auto'>
@@ -54,15 +43,6 @@ const SignUp = () => {
         <Link to={"/sign-in"}>
           <span className='text-blue-700'>Sign In</span>
         </Link>
-      </div>
-
-      {/* &^*&$%*&%(*^ Logout Button added below SignUp */}
-      <div className='mt-6 text-center'>
-        <button
-          onClick={handleLogout}
-          className='text-red-600 underline hover:text-red-800'>
-          Logout
-        </button>
       </div>
     </div>
   );
