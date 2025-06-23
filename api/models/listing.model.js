@@ -54,7 +54,8 @@ const listingSchema = new mongoose.Schema(
             type: String,
             required: true
         }
-    }
+    },
+  { timestamps: true }  // ✅ this adds createdAt, updatedAt fields
 )
 
 const Listing = mongoose.model('Listing', listingSchema);

@@ -14,12 +14,16 @@ import {
   FaParking,
   FaShare,
 } from 'react-icons/fa';
+import { useSelector } from 'react-redux';
+import Contact from '../components/Contact'; // ✅ make sure this exists
 
 const Listing = () => {
   const { id } = useParams();
   const [listing, setListing] = useState(null);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [showContact, setShowContact] = useState(false);
+  const { currentUser } = useSelector((state) => state.user);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -124,6 +128,19 @@ const Listing = () => {
             {listing.furnished ? 'Furnished' : 'Unfurnished'}
           </li>
         </ul>
+
+        {/* ✅ Show contact button only if logged-in user is not the listing owner */}
+        {currentUser && listing.userRef !== currentUser._id && !showContact && (
+          <button
+            onClick={() => setShowContact(true)}
+            className="bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 p-3 mt-4"
+          >
+            Contact landlord
+          </button>
+        )}
+
+        {/* ✅ Contact form shown after button is clicked */}
+        {showContact && <Contact listing={listing} />}
       </div>
     </main>
   );

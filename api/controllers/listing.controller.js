@@ -1,40 +1,213 @@
+// import Listing from "../models/listing.model.js";
+// import { errorHandler } from "../utils/error.js";
+
+// console.log("errorHandler loaded:", errorHandler);
+// export const createListing = async (req, res, next) => {
+//   try {
+//     console.log("📦 Listing payload received:", req.body); // 👈 Add this line
+//     const listing = await Listing.create(req.body);
+//     return res.status(201).json(listing);
+//   } catch (error) {
+//     console.error("❌ Listing creation error:", error); // 👈 Also add this
+//     next(errorHandler(500, "Failed to create listing"));
+//   }
+// };
+
+
+
+
+// export const getUserListing = async (req, res, next) => {
+//   if (req.user.id === req.params.id) {
+//     try {
+//       console.log("📥 Listing find called with userRef:", req.params.id); // 👈 Add this
+//       const listings = await Listing.find({ userRef: req.params.id }); // 👈 Must be userRef (not useRef)
+//       console.log("📤 Listings found:", listings); // 👈 Add this too
+//       res.status(200).json(listings);
+//     } catch (error) {
+//       next(error);
+//     }
+//   } else {
+//     return next(errorHandler(401, "You can only view your own listing!"));
+//   }
+// };
+
+
+
+
+
+// export const getListingById = async (req, res, next) => {
+//   try {
+//     const listing = await Listing.findById(req.params.id);
+//     if (!listing) {
+//       return res.status(404).json({ message: "Listing not found" });
+//     }
+//     res.status(200).json(listing);
+//   } catch (error) {
+//     next(errorHandler(500, "Something went wrong"));
+//   }
+// };
+
+
+
+
+
+// export const deleteListing = async (req, res, next) => {
+//   try {
+//     const listing = await Listing.findById(req.params.id);
+
+//     if (!listing) {
+//       return next(errorHandler(404, "Listing not found"));
+//     }
+
+//     if (listing.userRef !== req.user.id) {
+//       return next(errorHandler(401, "You can delete only your own listings"));
+//     }
+
+//     await listing.deleteOne();
+
+//     res.status(200).json({ message: "Listing deleted successfully" });
+//   } catch (err) {
+//     next(errorHandler(500, "Failed to delete listing"));
+//   }
+// };
+
+
+
+
+// // controllers/listing.controller.js
+
+// export const updateListing = async (req, res, next) => {
+//   try {
+//     const listing = await Listing.findById(req.params.id);
+
+//     if (!listing) return next(errorHandler(404, "Listing not found"));
+
+//     if (listing.userRef !== req.user.id)
+//       return next(errorHandler(403, "You can only update your own listings"));
+
+//     const updatedListing = await Listing.findByIdAndUpdate(
+//       req.params.id,
+//       req.body,
+//       { new: true }
+//     );
+
+//     res.status(200).json(updatedListing);
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+// export const getAllListings = async (req, res) => {
+//   try {
+//     const listings = await Listing.find().sort({ createdAt: -1 }).limit(9);
+//     res.status(200).json(listings);
+//   } catch (err) {
+//     res.status(500).json({ message: 'Failed to fetch listings' });
+//   }
+// };
+
+
+
+
+
+
+
+
+// export const getListingsWithFilters = async (req, res) => {
+//   try {
+//     const {
+//       searchTerm = '',
+//       type = 'all',
+//       parking = 'false',
+//       furnished = 'false',
+//       offer = 'false',
+//       sort = 'createdAt',
+//       order = 'desc',
+//       startIndex = 0,
+//     } = req.query;
+
+//     // ✅ Construct MongoDB query
+//     const query = {
+//       name: { $regex: searchTerm, $options: 'i' },
+//     };
+
+//     if (type !== 'all') query.type = type;
+//     if (parking === 'true') query.parking = true;
+//     if (furnished === 'true') query.furnished = true;
+//     if (offer === 'true') query.offer = true;
+
+//     // ✅ Convert order from string to number
+//     const sortOption = {};
+//     sortOption[sort] = order === 'desc' ? -1 : 1;
+
+//     const listings = await Listing.find(query)
+//       .sort(sortOption)
+//       .skip(parseInt(startIndex))
+//       .limit(9);
+
+//     return res.status(200).json(listings);
+//   } catch (error) {
+//     console.error('🔴 Error in getListingsWithFilters:', error.message);
+//     return res.status(500).json({
+//       success: false,
+//       statusCode: 500,
+//       message: error.message || 'Something went wrong',
+//     });
+//   }
+// };
+
+
+
+
 import Listing from "../models/listing.model.js";
 import { errorHandler } from "../utils/error.js";
 
-console.log("errorHandler loaded:", errorHandler);
+// ✅ Create Listing
 export const createListing = async (req, res, next) => {
   try {
-    console.log("📦 Listing payload received:", req.body); // 👈 Add this line
     const listing = await Listing.create(req.body);
-    return res.status(201).json(listing);
+    res.status(201).json(listing);
   } catch (error) {
-    console.error("❌ Listing creation error:", error); // 👈 Also add this
+    console.error("❌ Listing creation error:", error);
     next(errorHandler(500, "Failed to create listing"));
   }
 };
 
+// ✅ Get recent 6 listings (for Home page)
+// export const getRecentListings = async (req, res) => {
+//   try {
+//     const listings = await Listing.find()
+//       .sort({ createdAt: -1 })
+//       .limit(6); // you can set 5, 6, or 7 as needed
+//     res.status(200).json(listings);
+//   } catch (err) {
+//     res.status(500).json({ message: "Failed to fetch recent listings" });
+//   }
+// };
 
-
-
-export const getUserListing = async (req, res, next) => {
-  if (req.user.id === req.params.id) {
-    try {
-      console.log("📥 Listing find called with userRef:", req.params.id); // 👈 Add this
-      const listings = await Listing.find({ userRef: req.params.id }); // 👈 Must be userRef (not useRef)
-      console.log("📤 Listings found:", listings); // 👈 Add this too
-      res.status(200).json(listings);
-    } catch (error) {
-      next(error);
-    }
-  } else {
-    return next(errorHandler(401, "You can only view your own listing!"));
+// ✅ Get All Listings (admin maybe)
+export const getAllListings = async (req, res) => {
+  try {
+    const listings = await Listing.find().sort({ createdAt: -1 });
+    res.status(200).json(listings);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch listings" });
   }
 };
 
-
-
-
-
+// ✅ Get listing by ID
 export const getListingById = async (req, res, next) => {
   try {
     const listing = await Listing.findById(req.params.id);
@@ -47,39 +220,24 @@ export const getListingById = async (req, res, next) => {
   }
 };
 
-
-
-
-
-export const deleteListing = async (req, res, next) => {
-  try {
-    const listing = await Listing.findById(req.params.id);
-
-    if (!listing) {
-      return next(errorHandler(404, "Listing not found"));
+// ✅ Get listings created by a user
+export const getUserListing = async (req, res, next) => {
+  if (req.user.id === req.params.id) {
+    try {
+      const listings = await Listing.find({ userRef: req.params.id });
+      res.status(200).json(listings);
+    } catch (error) {
+      next(error);
     }
-
-    if (listing.userRef !== req.user.id) {
-      return next(errorHandler(401, "You can delete only your own listings"));
-    }
-
-    await listing.deleteOne();
-
-    res.status(200).json({ message: "Listing deleted successfully" });
-  } catch (err) {
-    next(errorHandler(500, "Failed to delete listing"));
+  } else {
+    return next(errorHandler(401, "You can only view your own listing!"));
   }
 };
 
-
-
-
-// controllers/listing.controller.js
-
+// ✅ Update listing
 export const updateListing = async (req, res, next) => {
   try {
     const listing = await Listing.findById(req.params.id);
-
     if (!listing) return next(errorHandler(404, "Listing not found"));
 
     if (listing.userRef !== req.user.id)
@@ -90,9 +248,75 @@ export const updateListing = async (req, res, next) => {
       req.body,
       { new: true }
     );
-
     res.status(200).json(updatedListing);
   } catch (err) {
     next(err);
+  }
+};
+
+// ✅ Get recent 6 listings for home page
+export const getRecentListings = async (req, res) => {
+  try {
+    const listings = await Listing.find().sort({ createdAt: -1 }).limit(6);
+    res.status(200).json(listings);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch recent listings' });
+  }
+};
+
+
+// ✅ Delete listing
+export const deleteListing = async (req, res, next) => {
+  try {
+    const listing = await Listing.findById(req.params.id);
+    if (!listing) {
+      return next(errorHandler(404, "Listing not found"));
+    }
+    if (listing.userRef !== req.user.id) {
+      return next(errorHandler(401, "You can delete only your own listings"));
+    }
+    await listing.deleteOne();
+    res.status(200).json({ message: "Listing deleted successfully" });
+  } catch (err) {
+    next(errorHandler(500, "Failed to delete listing"));
+  }
+};
+
+// ✅ Search / Filter
+export const getListingsWithFilters = async (req, res) => {
+  try {
+    const {
+      searchTerm = '',
+      type = 'all',
+      parking = 'false',
+      furnished = 'false',
+      offer = 'false',
+      sort = 'createdAt',
+      order = 'desc',
+      startIndex = 0,
+    } = req.query;
+
+    const query = {
+      name: { $regex: searchTerm, $options: 'i' },
+    };
+
+    if (type !== 'all') query.type = type;
+    if (parking === 'true') query.parking = true;
+    if (furnished === 'true') query.furnished = true;
+    if (offer === 'true') query.offer = true;
+
+    const sortOption = {};
+    sortOption[sort] = order === 'desc' ? -1 : 1;
+
+    const listings = await Listing.find(query)
+      .sort(sortOption)
+      .skip(parseInt(startIndex))
+      .limit(9);
+
+    return res.status(200).json(listings);
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || 'Something went wrong',
+    });
   }
 };

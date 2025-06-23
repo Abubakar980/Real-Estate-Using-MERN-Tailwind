@@ -6,6 +6,7 @@ import authRouter from './routes/auth.routes.js';
 import connectMongoDB from './db/db.js';
 import cookieParser from 'cookie-parser'
 import listingRouter from './routes/listing.routes.js';
+import messageRouter from './routes/message.routes.js';
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.listen(process.env.PORT, () => {
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/listing", listingRouter);
+app.use('/api/message', messageRouter);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
